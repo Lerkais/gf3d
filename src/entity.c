@@ -76,13 +76,13 @@ void entity_draw(Entity *self)
     if (!self)return;
     if (self->hidden)return;
     gf3d_model_draw(self->model,self->modelMat,gfc_color_to_vector4f(self->color),vector4d(1,1,1,1));
-    if (self->selected)
+    /*if (self->selected)
     {
         gf3d_model_draw_highlight(
             self->model,
             self->modelMat,
             gfc_color_to_vector4f(self->selectedColor));
-    }
+    }*/
 }
 
 void entity_draw_all()
@@ -95,7 +95,7 @@ void entity_draw_all()
             continue;// skip this iteration of the loop
         }
         entity_draw(&entity_manager.entity_list[i]);
-    }
+    } 
 }
 
 void entity_think(Entity *self)

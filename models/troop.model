@@ -1,0 +1,7 @@
+{
+    "model":
+    {
+        "model":"models/troop/troop.obj",
+        "texture":"models/troop/troop.png"
+    }
+}

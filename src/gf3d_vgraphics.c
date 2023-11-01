@@ -79,7 +79,7 @@ typedef struct
 
 static vGraphics gf3d_vgraphics = {0};
 
-int __DEBUG = 0;
+int __DEBUG = 1;
 extern Mesh *testMesh;
 
 void gf3d_vgraphics_close();
@@ -227,7 +227,7 @@ void gf3d_vgraphics_setup(
         slog("Unable to initilaize SDL system: %s",SDL_GetError());
         return;
     }
-    atexit(SDL_Quit);
+    atexit(SDL_Quit); // A kill stack "first to live, last to die"
     SDL_ShowCursor(SDL_DISABLE);
     if (fullscreen)
     {

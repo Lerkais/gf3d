@@ -1,0 +1,7 @@
+{
+    "model":
+    {
+        "model":"models/orb/orb.obj",
+        "texture":"models/orb/orb.png"
+    }
+}

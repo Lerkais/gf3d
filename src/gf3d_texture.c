@@ -292,6 +292,11 @@ Texture *gf3d_texture_load(const char *filename)
     SDL_Surface * surface;
     Texture *tex;
 
+    if (filename == NULL) {
+        slog("NO FILE NAME PROVIDED");
+        return NULL;
+    }
+
     tex = gf3d_texture_get_by_filename(filename);
     if (tex)
     {
