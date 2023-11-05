@@ -6,6 +6,7 @@
 #include "gfc_primitives.h"
 
 #include "gf3d_model.h"
+#include <stdbool.h>
 
 typedef enum
 {
@@ -41,6 +42,8 @@ typedef struct Entity_S
     Vector3D    position;  
     Vector3D    velocity;
     Vector3D    acceleration;
+
+    bool canMove;
         
     Vector3D    scale;
     Vector3D    rotation;
