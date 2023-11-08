@@ -203,9 +203,6 @@ void gf3d_particle_render(Particle *particle,VkCommandBuffer commandBuffer, VkDe
         slog("cannot render a NULL particle");
         return;
     }
-    if (particle->size < .001) {
-        return;
-    }
     vkCmdBindVertexBuffers(commandBuffer, 0, 1, &gf3d_particle.buffer, offsets);
         
     vkCmdBindDescriptorSets(

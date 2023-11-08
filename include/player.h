@@ -10,19 +10,17 @@
  * @return NULL on error, or an player entity pointer on success
  */
 
-typedef struct ObjectLinked_S {
-    Object* self; //todo free if null 
-    struct ObjectLinked_S* next;
+typedef struct ObjectLinked_S
+{
+	Object* self;
+	Object* next;
 }ObjectLinked;
 
 
 
-Entity* player_new(Vector3D position);
-
-void addChild(Object* child);
-
-void deleteChild(Object* child);
-
 ObjectLinked* getChildLink();
+
+Entity *player_new(Vector3D position);
+
 
 #endif

@@ -42,11 +42,11 @@ typedef struct Entity_S
     Vector3D    position;  
     Vector3D    velocity;
     Vector3D    acceleration;
-
-    bool canMove;
         
     Vector3D    scale;
     Vector3D    rotation;
+
+    bool canMove;
     
     Uint32      health;     /**<entity dies when it reaches zero*/
     // WHATEVER ELSE WE MIGHT NEED FOR ENTITIES

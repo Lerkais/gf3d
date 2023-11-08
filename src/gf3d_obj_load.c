@@ -51,8 +51,9 @@ void gf3d_obj_free(ObjData *obj)
 
 void gf3d_obj_load_reorg(ObjData *obj)
 {
+    int i,f;
     int vert = 0;
-    int vertexIndex, normalIndex, texelIndex = 0;
+    int vertexIndex,normalIndex,texelIndex;
     
     if (!obj)return;
     
@@ -60,16 +61,13 @@ void gf3d_obj_load_reorg(ObjData *obj)
     obj->faceVertices = (Vertex *)gfc_allocate_array(sizeof(Vertex),obj->face_vert_count);
     obj->outFace = (Face *)gfc_allocate_array(sizeof(Face),obj->face_count);
     
-    for (int i = 0; i < obj->face_count;i++)
+    for (i = 0; i < obj->face_count;i++)
     {
-        for (int f = 0; f < 3;f++,vert++)
+        for (f = 0; f < 3;f++,vert++)
         {
-            
             vertexIndex = obj->faceVerts[i].verts[f];
             normalIndex = obj->faceNormals[i].verts[f];
             texelIndex = obj->faceTexels[i].verts[f];
-
-            
             
             vector3d_copy(obj->faceVertices[vert].vertex,obj->vertices[vertexIndex]);
             vector3d_copy(obj->faceVertices[vert].normal,obj->normals[normalIndex]);
