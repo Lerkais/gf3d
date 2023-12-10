@@ -245,7 +245,7 @@ void gf3d_particle_draw(Particle *particle)
  * @brief draw a list of particles this frame
  * @param list list of GF3D_Particle's
  */
-void gf3d_particles_draw_list(List *list);
+void gf3d_particles_draw_list(gfcList *list);
 
 
 /*eol@eof*/

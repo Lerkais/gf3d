@@ -92,6 +92,6 @@ void gf2d_draw_bezier4_curve(Vector2D p0,Vector2D r0,Vector2D r1,Vector2D p1,Col
  * @param p2 ending point
  * @param color the color to draw with
  */
-void gf2d_draw_polygon(List *points,Color color);
+void gf2d_draw_polygon(gfcList *points,Color color);
 
 #endif

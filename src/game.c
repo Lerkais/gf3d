@@ -37,9 +37,9 @@ extern int __DEBUG;
 
 #include "sceneManager.c"
 
-#include "button.h"
+//#include "button.h"
 
-#include "oratime.h"
+//#include "oratime.h"
 
 #include "collision.h"
 
@@ -52,7 +52,7 @@ extern int __DEBUG;
 
 //void battle();
 
-int main(int argc, char* argv[])
+int amain(int argc, char* argv[])
 {
     char CWD[256];
     CWD[0] = '\0';
@@ -564,10 +564,5 @@ int main(int argc, char* argv[])
     return 0;
 }
 
-
-void explore()
-{
-
-}
 
     /*eol@eof*/

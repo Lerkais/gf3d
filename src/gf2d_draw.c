@@ -18,7 +18,7 @@ typedef struct
 typedef struct
 {
     Uint32 ttl;
-    List *draw_images;
+    gfcList *draw_images;
 }DrawManager;
 
 static DrawManager draw_manager = {0};

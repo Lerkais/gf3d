@@ -106,7 +106,7 @@ void gf3d_vgraphics_init(const char *config)
 {
     SJson *json,*setup;
     const char *windowName = NULL;
-    Vector2D resolution = {1024,768};
+    Vector2D resolution = {300,768}; //Has to be change to true window size
     short int fullscreen = 0;
     short int enableValidation = 0;
     short int enableDebug = 0;

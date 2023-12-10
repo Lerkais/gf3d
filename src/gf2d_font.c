@@ -24,7 +24,7 @@ typedef struct
     Font *font_list;
     Font *font_tags[FT_MAX];
     Uint32 font_max;
-    List *font_images;
+    gfcList *font_images;
     Uint32 ttl;         //time to live for font re-use
 }FontManager;
 

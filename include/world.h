@@ -20,8 +20,8 @@ typedef struct
     Vector3D scale;
     Model *model;
     Color color;
-    List *spawnList;        //entities to spawn
-    List *entityList;       //entities that exist in the world
+    gfcList *spawnList;        //entities to spawn
+    gfcList *entityList;       //entities that exist in the world
 }World;
 
 World *world_load(char *filename);

@@ -15,7 +15,7 @@ typedef struct
 {
     SJson *config;                  /**<loaded config*/
     VkInstance instance;            /**<active vulkan instance*/
-    List *device_list;              /**<list of GF3D_Device's*/
+    gfcList *device_list;              /**<list of GF3D_Device's*/
     VkPhysicalDevice *devices;      /**<array of physical device handles*/
     VkDevice          device;       /**<logical device handle*/
     int bestDevice;                 /**<index of the chosen physical device*/
