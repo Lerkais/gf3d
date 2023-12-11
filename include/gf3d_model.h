@@ -41,6 +41,7 @@ typedef struct
     Uint8                       _inuse;
     TextLine                    filename;
     Mesh                    *   mesh;
+    int meshcount;
     Texture                 *   texture;
     VkDescriptorSet         *   descriptorSet;
 }Model;
