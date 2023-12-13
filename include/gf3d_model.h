@@ -43,6 +43,7 @@ typedef struct
     Mesh                    *   mesh;
     int meshcount;
     Texture                 *   texture;
+    int textcount;
     VkDescriptorSet         *   descriptorSet;
 }Model;
 

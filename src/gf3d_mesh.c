@@ -274,6 +274,29 @@ void gf3d_mesh_render(Mesh *mesh,VkCommandBuffer commandBuffer, VkDescriptorSet 
     vkCmdDrawIndexed(commandBuffer, mesh->faceCount * 3, 1, 0, 0, 0);
 }
 
+void gf3d_multimesh_render(Mesh* meshes,int meshcount, VkCommandBuffer commandBuffer, VkDescriptorSet* descriptorSet)
+{
+    if (!meshes)
+    {
+        slog("cannot render a NULL multimesh");
+        return;
+    }
+    for (int i = 0; i < meshcount; i++)
+    {
+        VkDeviceSize offsets[] = { 0 };
+        Pipeline* pipe;
+        
+        pipe = gf3d_mesh_get_pipeline();
+        vkCmdBindVertexBuffers(commandBuffer, 0, 1, &(meshes[i].buffer), offsets);
+
+        vkCmdBindIndexBuffer(commandBuffer, meshes[i].faceBuffer, 0, VK_INDEX_TYPE_UINT32);
+
+        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipe->pipelineLayout, 0, 1, descriptorSet, 0, NULL);
+
+        vkCmdDrawIndexed(commandBuffer, meshes[i].faceCount * 3, 1, 0, 0, 0);
+    }
+}
+
 void gf3d_mesh_render_highlight(Mesh *mesh,VkCommandBuffer commandBuffer, VkDescriptorSet * descriptorSet)
 {
     VkDeviceSize offsets[] = {0};

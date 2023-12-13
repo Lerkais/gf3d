@@ -98,6 +98,8 @@ Model * gf3d_model_new()
         {
             gf3d_model_delete(&gf3d_model.model_list[i]);
             gf3d_model.model_list[i]._inuse = 1;
+            gf3d_model.model_list[i].meshcount = 1;
+            gf3d_model.model_list[i].textcount = 1;
             return &gf3d_model.model_list[i];
         }
     }
@@ -191,7 +193,10 @@ void gf3d_model_draw(Model *model,Matrix4 modelMat,Vector4D colorMod,Vector4D am
         slog("failed to get a free descriptor Set for model rendering");
         return;
     }
-    gf3d_model_update_basic_model_descriptor_set(model,*descriptorSet,bufferFrame,modelMat,colorMod,ambientLight);
+    
+    gf3d_model_update_basic_model_descriptor_set(model,*descriptorSet,bufferFrame,modelMat,colorMod,ambientLight); //todo add multiple modelMats for multimesh models
+    if (model->meshcount > 1)
+        gf3d_multimesh_render(model->mesh, model->meshcount, commandBuffer, descriptorSet);
     gf3d_mesh_render(model->mesh,commandBuffer,descriptorSet);
 }
 
