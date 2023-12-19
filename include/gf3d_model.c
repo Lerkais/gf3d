@@ -1,3 +1,4 @@
+#pragma once
 #include <assert.h>
 
 #include "simple_logger.h"
@@ -11,49 +12,21 @@
 
 #include "gf3d_model.h"
 
-typedef struct
+static ModelManager gf3d_model = { 0 };
+
+static Matrix4 lightSpaceMatrix;
+
+void gf3d_model_update_uniform_buffer2( //This isnt passing the position of the object //doesnt need to, it has the matrix
+    Model* model,
+    UniformBuffer* ubo,
+    Matrix4 modelMat,
+    Vector4D colorMod,
+    Vector4D ambient);
+
+ModelManager getModelManager()
 {
-    Model               *   model_list;
-    Uint32                  max_models;
-    Uint32                  chain_length;   /**<length of swap chain*/
-    VkDevice                device;
-    Pipeline            *   pipe;           /**<the pipeline associated with model rendering*/
-}ModelManager;
-
-static ModelManager gf3d_model = {0};
-
-void gf3d_model_delete(Model *model);
-
-void gf3d_model_create_descriptor_pool(Model *model);
-void gf3d_model_create_descriptor_sets(Model *model);
-void gf3d_model_create_descriptor_set_layout();
-void gf3d_model_update_uniform_buffer(
-    Model *model,
-    UniformBuffer *ubo,
-    Matrix4 modelMat,
-    Vector4D colorMod,
-    Vector4D ambientLight
-);
-void gf3d_model_update_highlight_uniform_buffer(
-    Model *model,
-    UniformBuffer *ubo,
-    Matrix4 modelMat,
-    Vector4D highlightColor);
-
-void gf3d_model_update_highlight_model_descriptor_set(
-    Model *model,
-    VkDescriptorSet descriptorSet,
-    Uint32 chainIndex,
-    Matrix4 modelMat,
-    Vector4D highlightColor);
-void gf3d_model_update_basic_model_descriptor_set(
-    Model *model,
-    VkDescriptorSet descriptorSet,
-    Uint32 chainIndex,
-    Matrix4 modelMat,
-    Vector4D colorMod,
-    Vector4D ambientLight);
-
+    return gf3d_model; 
+}
 
 VkDescriptorSetLayout * gf3d_model_get_descriptor_set_layout();
 
@@ -84,9 +57,24 @@ void gf3d_model_manager_init(Uint32 max_models)
     gf3d_model.max_models = max_models;
     gf3d_model.device = gf3d_vgraphics_get_default_logical_device();
     gf3d_model.pipe = gf3d_mesh_get_pipeline();
+
+    //light space init
+
+    gfc_matrix_identity(lightSpaceMatrix);
+
+    Vector3D lightdir = vector3d(0, 0, -1);
+
+    Matrix4 lview = { 0 }, lproj = {0};
+
+    gfc_matrix_view(lview, vector3d(0, 0, 100), vector3d(0, 0, 0), vector3d(0, 0, 1));
+    gfc_matrix_orthographic(lproj, -500, 500, -200, 200, 1, 500);
+
+    gfc_matrix_multiply(lightSpaceMatrix, lproj, lview);
+
     
     slog("model manager initiliazed");
     atexit(gf3d_model_manager_close);
+
 }
 
 Model * gf3d_model_new()
@@ -99,7 +87,8 @@ Model * gf3d_model_new()
             gf3d_model_delete(&gf3d_model.model_list[i]);
             gf3d_model.model_list[i]._inuse = 1;
             gf3d_model.model_list[i].meshcount = 1;
-            gf3d_model.model_list[i].textcount = 1;
+            gf3d_model.model_list[i].textcount = 0;
+            gf3d_model.model_list[i].data = NULL;
             return &gf3d_model.model_list[i];
         }
     }
@@ -194,10 +183,18 @@ void gf3d_model_draw(Model *model,Matrix4 modelMat,Vector4D colorMod,Vector4D am
         return;
     }
     
-    gf3d_model_update_basic_model_descriptor_set(model,*descriptorSet,bufferFrame,modelMat,colorMod,ambientLight); //todo add multiple modelMats for multimesh models
     if (model->meshcount > 1)
-        gf3d_multimesh_render(model->mesh, model->meshcount, commandBuffer, descriptorSet);
-    gf3d_mesh_render(model->mesh,commandBuffer,descriptorSet);
+    {
+        for (int i = 0; i < model->meshcount;i++) {
+            gf3d_model_update_basic_model_descriptor_set(model, *descriptorSet, bufferFrame, modelMat, colorMod, ambientLight); //todo add multiple modelMats for multimesh models
+            gf3d_multimesh_render(model->mesh, i, commandBuffer, descriptorSet);
+        }
+    }
+    else
+    {
+        gf3d_model_update_basic_model_descriptor_set(model, *descriptorSet, bufferFrame, modelMat, colorMod, ambientLight); //todo add multiple modelMats for multimesh models
+        gf3d_mesh_render(model->mesh, commandBuffer, descriptorSet);
+    }
 }
 
 void gf3d_model_draw_highlight(Model *model,Matrix4 modelMat,Vector4D highlight)
@@ -367,7 +364,7 @@ void gf3d_model_update_basic_model_descriptor_set(
     imageInfo.imageView = model->texture->textureImageView;
     imageInfo.sampler = model->texture->textureSampler;
 
-    gf3d_model_update_uniform_buffer(model,ubo,modelMat,colorMod,ambientLight);
+    gf3d_model_update_uniform_buffer2(model,ubo,modelMat,colorMod,ambientLight);
     bufferInfo.buffer = ubo->uniformBuffer;
     bufferInfo.offset = 0;
     bufferInfo.range = sizeof(MeshUBO);        
@@ -391,6 +388,70 @@ void gf3d_model_update_basic_model_descriptor_set(
 
     vkUpdateDescriptorSets(gf3d_model.device, 2, descriptorWrite, 0, NULL);
 }
+
+void gf3d_model_multimesh_update_basic_model_descriptor_set(
+    Model* model,
+    int i,
+    VkDescriptorSet descriptorSet,
+    Uint32 chainIndex,
+    Matrix4 modelMat,
+    Vector4D colorMod,
+    Vector4D ambientLight)
+{   
+
+    VkDescriptorImageInfo imageInfo = { 0 };
+    VkWriteDescriptorSet descriptorWrite[2] = { 0 };
+    VkDescriptorBufferInfo bufferInfo = { 0 };
+    UniformBuffer* ubo = NULL;
+
+    if (!model)
+    {
+        slog("no model provided for descriptor set update");
+        return;
+    }
+    if (descriptorSet == VK_NULL_HANDLE)
+    {
+        slog("null handle provided for descriptorSet");
+        return;
+    }
+    ubo = gf3d_uniform_buffer_list_get_buffer(gf3d_model.pipe->uboList, chainIndex);
+    if (!ubo)
+    {
+        slog("failed to get a free uniform buffer for draw call");
+        return;
+    }
+
+    imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    imageInfo.imageView = model->texture[i].textureImageView;
+    imageInfo.sampler = model->texture[i].textureSampler;
+
+    gf3d_model_update_uniform_buffer(model, ubo, modelMat, colorMod, ambientLight);
+    bufferInfo.buffer = ubo->uniformBuffer;
+    bufferInfo.offset = 0;
+    bufferInfo.range = sizeof(MeshUBO);
+
+    descriptorWrite[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    descriptorWrite[0].dstSet = descriptorSet;
+    descriptorWrite[0].dstBinding = 0;
+    descriptorWrite[0].dstArrayElement = 0;
+    descriptorWrite[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    descriptorWrite[0].descriptorCount = 1;
+    descriptorWrite[0].pBufferInfo = &bufferInfo;
+
+    descriptorWrite[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    descriptorWrite[1].dstSet = descriptorSet;
+    descriptorWrite[1].dstBinding = 1;
+    descriptorWrite[1].dstArrayElement = 0;
+    descriptorWrite[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    descriptorWrite[1].descriptorCount = 1;
+    descriptorWrite[1].pImageInfo = &imageInfo;
+    descriptorWrite[1].pTexelBufferView = NULL; // Optional
+
+    vkUpdateDescriptorSets(gf3d_model.device, 2, descriptorWrite, 0, NULL);
+
+}
+
+
 
 void gf3d_model_update_highlight_model_descriptor_set(
     Model *model,
@@ -454,7 +515,7 @@ void gf3d_model_update_highlight_model_descriptor_set(
 
 
 
-void gf3d_model_update_uniform_buffer(
+void gf3d_model_update_uniform_buffer( //This isnt passing the position of the object //doesnt need to, it has the matrix
     Model *model,
     UniformBuffer *ubo,
     Matrix4 modelMat,
@@ -476,6 +537,34 @@ void gf3d_model_update_uniform_buffer(
     vkMapMemory(gf3d_model.device, ubo->uniformBufferMemory, 0, sizeof(MeshUBO), 0, &data);
     
         memcpy(data, &modelUBO, sizeof(MeshUBO));
+
+    vkUnmapMemory(gf3d_model.device, ubo->uniformBufferMemory);
+}
+
+void gf3d_model_update_uniform_buffer2( //This isnt passing the position of the object //doesnt need to, it has the matrix
+    Model* model,
+    UniformBuffer* ubo,
+    Matrix4 modelMat,
+    Vector4D colorMod,
+    Vector4D ambient)
+{
+    void* data;
+    UniformBufferObject graphics_ubo;
+    MeshUBO modelUBO;
+    graphics_ubo = gf3d_vgraphics_get_uniform_buffer_object();
+
+    gfc_matrix_copy(modelUBO.model, modelMat);
+    gfc_matrix_copy(modelUBO.view, graphics_ubo.view);
+    gfc_matrix_copy(modelUBO.proj, graphics_ubo.proj);
+
+    //gfc_matrix_copy(modelUBO.lightSpace, lightSpaceMatrix);
+
+    vector4d_copy(modelUBO.color, colorMod);
+    vector4d_copy(modelUBO.ambient, ambient);
+
+    vkMapMemory(gf3d_model.device, ubo->uniformBufferMemory, 0, sizeof(MeshUBO), 0, &data);
+
+    memcpy(data, &modelUBO, sizeof(MeshUBO));
 
     vkUnmapMemory(gf3d_model.device, ubo->uniformBufferMemory);
 }

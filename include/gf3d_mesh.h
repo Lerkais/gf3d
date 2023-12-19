@@ -12,6 +12,7 @@ typedef struct
     Matrix4 model;
     Matrix4 view;
     Matrix4 proj;
+    //Matrix4 lightSpace;
     Vector4D color; //color mod
     Vector4D ambient;
 }MeshUBO;
@@ -58,6 +59,7 @@ typedef struct
     Uint32          faceCount;
     VkBuffer        faceBuffer;
     VkDeviceMemory  faceBufferMemory;
+    unsigned int textureIndex;
 }Mesh;
 
 /**

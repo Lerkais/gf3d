@@ -1,0 +1,11 @@
+Model Information:
+* title:	SF Hallway
+* source:	https://sketchfab.com/3d-models/sf-hallway-9a57302fd9994219b35aa6b906be9494
+* author:	Alex Ace (https://sketchfab.com/luckysalt)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "SF Hallway" (https://sketchfab.com/3d-models/sf-hallway-9a57302fd9994219b35aa6b906be9494) by Alex Ace (https://sketchfab.com/luckysalt) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

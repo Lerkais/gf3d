@@ -45,6 +45,7 @@ typedef struct
     Texture                 *   texture;
     int textcount;
     VkDescriptorSet         *   descriptorSet;
+    void* data;
 }Model;
 
 /**
@@ -113,5 +114,62 @@ void gf3d_model_draw_sky(Model *model,Matrix4 modelMat,Color color);
  * @brief free a model
  */
 void gf3d_model_free(Model *model);
+
+typedef struct
+{
+    Model* model_list;
+    Uint32                  max_models;
+    Uint32                  chain_length;   /**<length of swap chain*/
+    VkDevice                device;
+    Pipeline* pipe;           /**<the pipeline associated with model rendering*/
+}ModelManager;
+
+ModelManager getModelManager();
+
+void gf3d_model_delete(Model* model);
+
+void gf3d_model_create_descriptor_pool(Model* model);
+void gf3d_model_create_descriptor_sets(Model* model);
+void gf3d_model_create_descriptor_set_layout();
+void gf3d_model_update_uniform_buffer(
+    Model* model,
+    UniformBuffer* ubo,
+    Matrix4 modelMat,
+    Vector4D colorMod,
+    Vector4D ambientLight
+);
+
+
+
+void gf3d_model_update_highlight_uniform_buffer(
+    Model* model,
+    UniformBuffer* ubo,
+    Matrix4 modelMat,
+    Vector4D highlightColor);
+
+void gf3d_model_update_highlight_model_descriptor_set(
+    Model* model,
+    VkDescriptorSet descriptorSet,
+    Uint32 chainIndex,
+    Matrix4 modelMat,
+    Vector4D highlightColor);
+
+void gf3d_model_multimesh_update_basic_model_descriptor_set(
+    Model* model,
+    int i,
+    VkDescriptorSet descriptorSet,
+    Uint32 chainIndex,
+    Matrix4 modelMat,
+    Vector4D colorMod,
+    Vector4D ambientLight);
+
+
+void gf3d_model_update_basic_model_descriptor_set(
+    Model* model,
+    VkDescriptorSet descriptorSet,
+    Uint32 chainIndex,
+    Matrix4 modelMat,
+    Vector4D colorMod,
+    Vector4D ambientLight);
 
 #endif
